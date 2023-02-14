@@ -6,6 +6,8 @@ html {
 }
 
 .help-bar {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
   padding: 0 2rem;
 }
 .help-bar > div {
