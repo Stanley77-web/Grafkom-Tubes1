@@ -1,4 +1,4 @@
-var shapeBuffer;    // Array of shapes
+var shapeBuffer;                            // Array of shapes
 var num             = 0;                    // Number of vertices
 var canvas;                                 // Canvas element
 var gl;                                     // WebGL context

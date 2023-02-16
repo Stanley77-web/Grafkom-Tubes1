@@ -1,6 +1,6 @@
 const eplison       = 0.05;
 
-function getNearestVertices(pos) {
+function getNearestVertice(pos) {
     for (var i = 0; i < shapeBuffer.buffer.length; i++) {
         for (var j = 0; j < shapeBuffer.buffer[i].vertices.length; j++) {
             if (euclideanDistance(pos, shapeBuffer.buffer[i].vertices[j]) < eplison) {

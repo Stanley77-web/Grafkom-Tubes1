@@ -114,18 +114,15 @@ class Rectangle extends Base {
         const x1    = this.vertices[1].x;
         const y1    = this.vertices[1].y;
 
-        const dx    = x1 - x0;
-        const dy    = y1 - y0;
-
         var color_1 = this.colors[0];
         var color_2 = this.colors[0];
 
 
         this.vertices = [
-            {x: x0      , y: y0     },
-            {x: x0      , y: y0 + dy},
-            {x: x0 + dx , y: y0 + dy},
-            {x: x0 + dx , y: y0     }
+            {x: x0 , y: y0},
+            {x: x0 , y: y1},
+            {x: x1 , y: y1},
+            {x: x1 , y: y0}
         ]
 
         this.colors = [
