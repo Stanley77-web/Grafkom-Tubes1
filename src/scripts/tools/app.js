@@ -2,8 +2,8 @@
 function app() {
     var modeElmnt       = document.getElementById("menumode");
     var mode            = modeElmnt.value;
-
-    var shapeElmnt          = document.getElementById("menushape"); 
+    var shapeElmnt      = document.getElementById("menushape"); 
+    var clearButton          = document.getElementById("clearButton");
 
     modeElmnt.addEventListener("change", (e) => {
         mode            = e.target.value;
@@ -23,7 +23,11 @@ function app() {
     moveMode();
     paintMode();
 
-    
+    clearButton.addEventListener("click", (e) => {
+        shapeBuffer.clear();
+        num         = 0;
+    })
+
     function drawMode() {
         var nodePolygonElmt     = document.getElementById("number-picker");
         var nodePolygon         = nodePolygonElmt.value;
@@ -50,7 +54,6 @@ function app() {
         })
 
         canvas.addEventListener("mousedown", (e) => {
-            console.log(nodeDrawed)
             if (mode != "draw") return;
 
             var positon     = getPosition(canvas, e);
@@ -129,7 +132,7 @@ function app() {
 
         var similarityElmnt    = document.getElementById("similarity");
 
-        var vertex;
+        var vertex, inside, initialPos;
 
         canvas.addEventListener("mousedown", (e) => {
             if (mode != "move") return;
@@ -137,8 +140,12 @@ function app() {
             var positon    = getPosition(canvas, e);
             
             vertex         = getNearestVertice(positon);
+            inside         = getNearestInsideShape(positon);
             
-            if (!vertex) return;
+            if (!vertex && !inside) return;
+
+            if (inside)
+                initialPos  = positon
 
             moving          = true;
         })
@@ -147,23 +154,43 @@ function app() {
             if (mode != "move") return;
             
             if (moving) {
-                var positon     = getPosition(canvas, e);
-                var shape       = shapeBuffer.findById(vertex.shapePos);
+                if (!vertex) {
+                    var positon     = getPosition(canvas, e);
+                    var shape       = shapeBuffer.findById(inside.shapePos);
 
-                var vertice     = shape.vertices[vertex.vertexPos];
-
-                if (similarityElmnt.checked) {
-                    var dx          = positon.x - vertice.x;
-                    var dy          = positon.y - vertice.y;
+                    var dx          = positon.x - initialPos.x;
+                    var dy          = positon.y - initialPos.y;
     
                     shape.vertices.forEach(vertice => {
                         vertice.x   += dx;
                         vertice.y   += dy;
                     });
-                } else {
-                    shape.vertices[vertex.vertexPos]    = positon;
-                }
+                    initialPos     = positon;
 
+                } else {
+                    var positon     = getPosition(canvas, e);
+                    var shape       = shapeBuffer.findById(vertex.shapePos);
+                    var vertexPos   = vertex.vertexPos;
+
+                    if (similarityElmnt.checked && shape.type != "line") {
+                        var vertice     = shape.vertices[vertexPos];
+
+                        var dx          = positon.x - vertice.x;
+                        var dy          = positon.y - vertice.y;
+
+                        var xMove       = ((vertexPos + ((vertexPos%2)? -1 :  1)) + 4) % 4;
+                        var yMove       = ((vertexPos + ((vertexPos%2)?  1 : -1)) + 4) % 4;
+                        
+                        shape.vertices[xMove].x += dx;
+
+                        shape.vertices[vertexPos ].x += dx;
+                        shape.vertices[vertexPos ].y += dy;
+
+                        shape.vertices[yMove].y += dy;   
+                    } else {
+                        shape.vertices[vertexPos]    = positon;
+                    }
+                }
             }
         })
 
@@ -182,9 +209,19 @@ function app() {
             var color       = getColor();
 
             var vertex      = getNearestVertice(positon);
-            var shape       = shapeBuffer.findById(vertex.shapePos);
+            var inside      = getNearestInsideShape(positon);
             
-            shape.colors[vertex.vertexPos]   = color;
+            if (vertex) {
+                var shape       = shapeBuffer.findById(vertex.shapePos);
+
+                shape.colors[vertex.vertexPos]   = color;
+            } else if (inside) {
+                var shape       = shapeBuffer.findById(inside.shapePos);
+
+                shape.colors.forEach((_, i) => {
+                    shape.colors[i] = color;
+                });
+            }
         })
     }
 }

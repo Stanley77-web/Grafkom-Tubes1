@@ -138,7 +138,7 @@ class Rectangle extends Base {
 
         var primitiveType   = this.gl.TRIANGLE_FAN;
         var offset          = 0;
-        var count           = this.vertices.length;
+        var count           = 4;
 
         this.gl.drawArrays(primitiveType, offset, count);
     }
