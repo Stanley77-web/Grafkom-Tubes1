@@ -183,8 +183,8 @@ function app() {
                         
                         shape.vertices[xMove].x += dx;
 
-                        shape.vertices[vertexPos ].x += dx;
-                        shape.vertices[vertexPos ].y += dy;
+                        shape.vertices[vertexPos].x += dx;
+                        shape.vertices[vertexPos].y += dy;
 
                         shape.vertices[yMove].y += dy;   
                     } else {

@@ -4,6 +4,7 @@ function getNearestVertice(pos) {
     for (var i = 0; i < shapeBuffer.buffer.length; i++) {
         for (var j = 0; j < shapeBuffer.buffer[i].vertices.length; j++) {
             if (euclideanDistance(pos, shapeBuffer.buffer[i].vertices[j]) < eplison) {
+                console.log(j)
                 return {
                     shapePos    : i,
                     vertexPos   : j,
@@ -43,13 +44,18 @@ function isInside(pos, shape) {
     var y = pos.y;
 
     if (shape.type == "rectangle" || shape.type == "square") {
+        var Xmax   = Math.max(shape.vertices[1].x, shape.vertices[3].x);
+        var Xmin   = Math.min(shape.vertices[1].x, shape.vertices[3].x);
+        var Ymax   = Math.max(shape.vertices[1].y, shape.vertices[3].y);
+        var Ymin   = Math.min(shape.vertices[1].y, shape.vertices[3].y);
         return (
             // check x position
-            x > shape.vertices[1].x &&  // min x
-            x < shape.vertices[3].x &&  // max x
+            x > Xmin &&  // min x
+            x < Xmax &&  // max x
             // check y position
-            y > shape.vertices[1].y &&  // min y
-            y < shape.vertices[3].y);   // max y
+            y > Ymin &&  // min y
+            y < Ymax     // max y
+        ); 
     } 
 }
 
