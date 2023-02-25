@@ -80,8 +80,34 @@ class Line extends Base {
         this.colors     = [];
     }
 
+    construct() {
+        const x0    = this.vertices[0].x;
+        const y0    = this.vertices[0].y;
+        const x1    = this.vertices[1].x;
+        const y1    = this.vertices[1].y;
+
+        var color_1 = this.colors[0];
+        var color_2 = this.colors[0];
+
+        this.vertices = [
+            {x: x0 , y: y0},
+            {x: x1 , y: y1}
+        ];
+
+        this.colors = [
+            color_1,
+            color_2
+        ];
+    }
+
     draw() {
         /* TODO: Implement */
+        this.initDraw();
+
+        var primitiveType   = this.gl.LINE_STRIP;
+        var offset          = 0;
+        var count           = 2;
+        this.gl.drawArrays(primitiveType, offset, count);
     }
 }
 
@@ -94,8 +120,18 @@ class Square extends Base {
         this.colors     = [];
     }
 
+    construct() {
+    }
+
     draw() {
         /* TODO: Implement */
+        this.initDraw();
+
+        var primitiveType   = this.gl.TRIANGLE_FAN;
+        
+        var offset          = 0;
+        var count           = 4;
+        this.gl.drawArrays(primitiveType, offset, count);
     }
 }
 
