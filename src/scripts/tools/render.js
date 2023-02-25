@@ -1,7 +1,7 @@
 /* ############################### Render Screen ################################ */
 function render() {
-    gl.canvas.width                = ( 9/12) * window.innerWidth;
-    gl.canvas.height               = (12/12) * window.innerWidth;
+    gl.canvas.width                = (9/12) * window.innerWidth;
+    gl.canvas.height               = (9/12) * window.innerWidth;
 
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 

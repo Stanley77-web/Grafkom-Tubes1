@@ -67,8 +67,32 @@ class Base {
         this.setVertexAttribPointer(colorAttributeLocation, colorBuffer, 4);
     }
 
-    draw() {};
     construct() {};
+    setVertice(newPos, vertexPos) {};
+    move(dx, dy) {
+        this.vertices.forEach(element => {
+            element.x += dx;
+            element.y += dy;
+        });
+    };
+    resize(center, scale) {
+        this.vertices.forEach(vertice => {
+            vertice.x = center.x + (vertice.x - center.x) * scale;
+            vertice.y = center.y + (vertice.y - center.y) * scale;
+        });
+    };
+    rotate(degree) {
+        console.log("rotate");
+        console.log(degree);
+        var radian = degree * Math.PI / 180;
+        this.vertices.forEach(element => {
+            var x = element.x;
+            var y = element.y;
+            element.x = x * Math.cos(radian) - y * Math.sin(radian);
+            element.y = x * Math.sin(radian) + y * Math.cos(radian);
+        });
+    };
+    draw() {};
 }
 
 /* ################################ Line Model ################################# */
@@ -80,33 +104,19 @@ class Line extends Base {
         this.colors     = [];
     }
 
-    construct() {
-        const x0    = this.vertices[0].x;
-        const y0    = this.vertices[0].y;
-        const x1    = this.vertices[1].x;
-        const y1    = this.vertices[1].y;
+    construct() {}
 
-        var color_1 = this.colors[0];
-        var color_2 = this.colors[0];
-
-        this.vertices = [
-            {x: x0 , y: y0},
-            {x: x1 , y: y1}
-        ];
-
-        this.colors = [
-            color_1,
-            color_2
-        ];
+    setVertice(newPos, vertexPos) {
+        this.vertices[vertexPos] = newPos;
     }
 
     draw() {
-        /* TODO: Implement */
         this.initDraw();
 
-        var primitiveType   = this.gl.LINE_STRIP;
+        var primitiveType   = this.gl.LINES;
         var offset          = 0;
-        var count           = 2;
+        var count           = this.vertices.length;
+        
         this.gl.drawArrays(primitiveType, offset, count);
     }
 }
@@ -121,16 +131,72 @@ class Square extends Base {
     }
 
     construct() {
+        const x0    = this.vertices[0].x;
+        const y0    = this.vertices[0].y;
+        const x1    = this.vertices[1].x;
+        const y1    = this.vertices[1].y;
+
+        var dx      = x1 - x0;
+        var dy      = y1 - y0;
+
+        var minxy   = Math.min(Math.abs(dx), Math.abs(dy));
+
+        var dx      = dx > 0 ? minxy : -minxy;
+        var dy      = dy > 0 ? minxy : -minxy;
+
+        var color_1 = this.colors[0];
+        var color_2 = this.colors[0];
+
+
+        this.vertices = [
+            {x: x0     , y: y0     },   
+            {x: x0     , y: y0 + dy},
+            {x: x0 + dx, y: y0 + dy},
+            {x: x0 + dx, y: y0     }
+        ]
+
+        this.colors = [
+            color_1,
+            color_1,
+            color_2,
+            color_2
+        ]
+    }
+
+    setVertice(newPos, vertexPos) {
+        var anchor      = this.vertices[(vertexPos + 2) % 4];
+
+        var dx          = newPos.x - anchor.x;
+        var dy          = newPos.y - anchor.y;
+
+        var minxy   = Math.min(Math.abs(dx), Math.abs(dy));
+        
+        dx          = dx > 0 ? minxy : -minxy;
+        dy          = dy > 0 ? minxy : -minxy;        
+
+        var xNew        = ((vertexPos + ((vertexPos%2)? -1 :  1)) + 4) % 4;
+        var yNew        = ((vertexPos + ((vertexPos%2)?  1 : -1)) + 4) % 4;
+
+        var newCorner   = {
+            x: anchor.x + dx,
+            y: anchor.y + dy
+        }
+        
+        this.vertices[xNew].x = newCorner.x;
+
+        this.vertices[vertexPos].x = newCorner.x;
+        this.vertices[vertexPos].y = newCorner.y;
+
+        this.vertices[yNew].y = newCorner.y;; 
     }
 
     draw() {
-        /* TODO: Implement */
         this.initDraw();
 
         var primitiveType   = this.gl.TRIANGLE_FAN;
-        
         var offset          = 0;
         var count           = 4;
+
         this.gl.drawArrays(primitiveType, offset, count);
     }
 }
@@ -153,7 +219,6 @@ class Rectangle extends Base {
         var color_1 = this.colors[0];
         var color_2 = this.colors[0];
 
-
         this.vertices = [
             {x: x0 , y: y0},
             {x: x0 , y: y1},
@@ -167,6 +232,18 @@ class Rectangle extends Base {
             color_2,
             color_2
         ]
+    }
+
+    setVertice(newPos, vertexPos) {
+        var newX       = ((vertexPos + ((vertexPos%2)? -1 :  1)) + 4) % 4;
+        var newY       = ((vertexPos + ((vertexPos%2)?  1 : -1)) + 4) % 4;
+
+        this.vertices[newX].x      = newPos.x;
+
+        this.vertices[vertexPos].x = newPos.x;
+        this.vertices[vertexPos].y = newPos.y;
+
+        this.vertices[newY].y      = newPos.y;;    
     }
 
     draw() {
@@ -189,11 +266,19 @@ class Polygon extends Base {
         this.colors     = [];
     }
 
-    rotate(angle, d) {
-        this.vertices.forEach(element => {
-            element.x = element.x * Math.cos(angle) - element.y * Math.sin(angle) + d;
-            element.y = element.x * Math.sin(angle) + element.y * Math.cos(angle);
-        });
+    setVertice(newPos, vertexPos) {
+        var dx         = newPos.x - this.vertices[vertexPos].x;
+        var dy         = newPos.y - this.vertices[vertexPos].y;
+
+        var newX       = ((vertexPos + ((vertexPos%2)? -1 :  1)) + 4) % 4;
+        var newY       = ((vertexPos + ((vertexPos%2)?  1 : -1)) + 4) % 4;
+
+        this.vertices[newX].x      += dx;
+
+        this.vertices[vertexPos].x += dx;
+        this.vertices[vertexPos].y += dy;
+
+        this.vertices[newY].y      += dy;  
     }
 
     draw() {
