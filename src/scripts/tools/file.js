@@ -21,6 +21,7 @@ function loadFile() {
     var loadElmt    = document.getElementById("load");
     var file        = loadElmt.files[0];
     var reader      = new FileReader();
+    shapeBuffer     = new ShapeBuffer();
     reader.addEventListener("load", function(e) {
         var rawBuffer = JSON.parse(e.target.result).buffer;
 

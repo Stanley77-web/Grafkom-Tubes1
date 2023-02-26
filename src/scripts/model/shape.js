@@ -69,6 +69,7 @@ class Base {
 
     construct() {};
     setVertice(newPos, vertexPos) {};
+    setLine(newPos, linePos) { };
     move(dx, dy) {
         this.vertices.forEach(element => {
             element.x += dx;
@@ -81,15 +82,16 @@ class Base {
             vertice.y = center.y + (vertice.y - center.y) * scale;
         });
     };
-    rotate(degree) {
-        console.log("rotate");
-        console.log(degree);
-        var radian = degree * Math.PI / 180;
-        this.vertices.forEach(element => {
-            var x = element.x;
-            var y = element.y;
-            element.x = x * Math.cos(radian) - y * Math.sin(radian);
-            element.y = x * Math.sin(radian) + y * Math.cos(radian);
+    rotate(center, angle) {
+        this.vertices.forEach(vertice => {
+            var dx      = vertice.x - center.x;
+            var dy      = vertice.y - center.y;
+
+            var x       = center.x + dx * Math.cos(angle) - dy * Math.sin(angle);
+            var y       = center.y + dx * Math.sin(angle) + dy * Math.cos(angle);
+
+            vertice.x    = x;
+            vertice.y    = y;
         });
     };
     draw() {};
@@ -190,6 +192,36 @@ class Square extends Base {
         this.vertices[yNew].y = newCorner.y;; 
     }
 
+    setLine(newPos, linePos) {
+        var dx, dy;
+        if (this.vertices[linePos[0]].x == this.vertices[linePos[1]].x) {
+            var opposite     = (linePos[0] + 2) % 4;
+            dx  = newPos.x - this.vertices[linePos[0]].x;
+            dy  = dx
+
+            this.vertices[linePos[0]].x  += dx;
+
+            this.vertices[linePos[1]].x  += dx;
+            this.vertices[linePos[1]].y  += dy;
+    
+            this.vertices[opposite].y    += dy;
+        } else if (this.vertices[linePos[0]].y == this.vertices[linePos[1]].y) {
+            var opposite     = (linePos[0] + 2) % 4;
+            dy = newPos.y - this.vertices[linePos[0]].y;
+            dx = dy;
+
+            this.vertices[linePos[0]].y  += dy;
+
+            this.vertices[linePos[1]].y  += dy;
+            this.vertices[linePos[1]].x  -= dx;
+    
+            this.vertices[opposite].x    -= dx;
+        }
+        
+
+    }
+
+
     draw() {
         this.initDraw();
 
@@ -246,6 +278,16 @@ class Rectangle extends Base {
         this.vertices[newY].y      = newPos.y;;    
     }
 
+    setLine(newPos, linePos) {
+        if (this.vertices[linePos[0]].x == this.vertices[linePos[1]].x) {
+            this.vertices[linePos[0]].x = newPos.x;
+            this.vertices[linePos[1]].x = newPos.x;
+        } else if (this.vertices[linePos[0]].y == this.vertices[linePos[1]].y) {
+            this.vertices[linePos[0]].y = newPos.y;
+            this.vertices[linePos[1]].y = newPos.y;
+        }
+    }
+
     draw() {
         this.initDraw();
 
@@ -267,6 +309,10 @@ class Polygon extends Base {
     }
 
     setVertice(newPos, vertexPos) {
+        if (this.vertices.length < 3) {
+            this.vertices[vertexPos] = newPos;
+        }
+
         var dx         = newPos.x - this.vertices[vertexPos].x;
         var dy         = newPos.y - this.vertices[vertexPos].y;
 

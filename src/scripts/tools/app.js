@@ -10,8 +10,8 @@ function app() {
 
         if (mode == "move") {
             document.getElementById("width").style.height                   = "74px";
-            document.getElementById("similarity").style.display             = "inline-block";
-            document.getElementById("similarity-label").style.display       = "inline-block";
+            document.getElementById("corner").style.display             = "inline-block";
+            document.getElementById("corner-label").style.display       = "inline-block";
             document.getElementById("number-picker").style.display          = "none";
             document.getElementById("number-picker-label").style.display    = "none";
             document.getElementById("menuspecial").style.display            = "none";
@@ -20,16 +20,16 @@ function app() {
             document.getElementById("width").style.height                   = "40px";
             document.getElementById("number-picker").style.display          = "block";
             document.getElementById("number-picker-label").style.display    = "block";
-            document.getElementById("similarity").style.display             = "none";
-            document.getElementById("similarity-label").style.display       = "none";
+            document.getElementById("corner").style.display             = "none";
+            document.getElementById("corner-label").style.display       = "none";
             document.getElementById("menuspecial").style.display            = "none";
             document.getElementById("menuspecial-label").style.display      = "none";
         } else {
             document.getElementById("width").style.height                   = "98px";
             document.getElementById("number-picker").style.display          = "none";
             document.getElementById("number-picker-label").style.display    = "none";
-            document.getElementById("similarity").style.display             = "none";
-            document.getElementById("similarity-label").style.display       = "none";
+            document.getElementById("corner").style.display             = "none";
+            document.getElementById("corner-label").style.display       = "none";
             document.getElementById("menuspecial").style.display            = "none";
             document.getElementById("menuspecial-label").style.display      = "none";
         }
@@ -40,7 +40,7 @@ function app() {
     paintMode();
     selectMode();
     resizeMode();
-    // rotateMode();
+    rotateMode();
     
 
     clearButton.addEventListener("click", (e) => {
@@ -59,11 +59,14 @@ function app() {
 
         shapeElmnt.addEventListener("change", (e) => {
             if (e.target.value == "polygon" && mode == "draw") {
-                document.getElementById("width").style.height                 = "40px";
+                document.getElementById("width").style.height                 = "43.4px";
                 document.getElementById("number-picker").style.display        = "block";
                 document.getElementById("number-picker-label").style.display  = "block";
             } else {
-                document.getElementById("width").style.height                 = "98px";
+                if (document.getElementById("menuspecial").style.display == "block")
+                    document.getElementById("width").style.height             = "98px";
+                else
+                    document.getElementById("width").style.height             = "98px";
                 document.getElementById("number-picker").style.display        = "none";
                 document.getElementById("number-picker-label").style.display  = "none";
             }
@@ -90,19 +93,13 @@ function app() {
                 if (shape.vertices.length < nodePolygon) {
                     shape.vertices.push(positon);
                     shape.colors.push(color);
-                    var convexPoint = getConvexHull(shape.vertices);
-                    console.log(convexPoint);
-                    console.log(shape.vertices);
-                    if (convexPoint.length != shape.vertices.length) {
-                        for (var i = 0; i < shape.vertices.length - convexPoint.length; i++) {
-                            shape.vertices.pop();
-                            shape.colors.pop();
-                            nodeDrawed--;
-                        }   
-                        return;
-                    }
+
                     nodeDrawed++;
                 } else {
+                    var convexHull      = getConvexHull(shape);
+                    shape.vertices      = convexHull.vertices;
+                    shape.colors        = convexHull.colors;
+                    console.log(convexHull);
                     drawing     = false;
                     nodeDrawed  = 0;
                 }
@@ -140,6 +137,7 @@ function app() {
                 if (drawing) {
                     shape.vertices[nodeDrawed]  = positon;
                     shape.colors[nodeDrawed]    = color;
+
                 }
             } else {
                 if (drawing) {
@@ -160,7 +158,7 @@ function app() {
     function moveMode() {
         var moving             = false;
 
-        var similarityElmnt    = document.getElementById("similarity");
+        var cornerElmnt    = document.getElementById("corner");
 
         var vertex, inside, line, initialPos;
 
@@ -190,7 +188,7 @@ function app() {
                     var shape       = shapeBuffer.findById(vertex.shapePos);
                     var vertexPos   = vertex.vertexPos;
 
-                    if (similarityElmnt.checked) {
+                    if (cornerElmnt.checked) {
                         shape.setVertice(positon, vertexPos)
                     } else {
                         shape.vertices[vertexPos]    = positon;
@@ -200,13 +198,7 @@ function app() {
                     var shape       = shapeBuffer.findById(line.shapePos);
                     var linePos     = line.linePos;
 
-                    if (shape.vertices[linePos[0]].x == shape.vertices[linePos[1]].x) {
-                        shape.vertices[linePos[0]].x = position.x;
-                        shape.vertices[linePos[1]].x = position.x;
-                    } else if (shape.vertices[linePos[0]].y == shape.vertices[linePos[1]].y) {
-                        shape.vertices[linePos[0]].y = position.y;
-                        shape.vertices[linePos[1]].y = position.y;
-                    }
+                    shape.setLine(position, linePos);
                 } else {
                     var positon     = getPosition(canvas, e);
                     var shape       = shapeBuffer.findById(inside.shapePos);
@@ -269,33 +261,40 @@ function app() {
             if (mode != "select") return;
 
             var positon     = getPosition(canvas, e);
-            var inside       = getNearestInsideShape(positon);
+            var inside      = getNearestInsideShape(positon);
 
             if (selected) {
-                if (menuSpecial == "add") {
-                    var color      = getColor();
-
-                    shapeSelected.vertices.push(positon)
-                    shapeSelected.colors.push(color)               
-                } else {
-                    var vertex      = getNearestVertice(positon);
-
-                    if (!vertex) return;
+                if (shapeSelected.type == "polygon") {
+                    if (menuSpecial == "add") {
+                        var color      = getColor();
     
-                    shapeSelected.vertices.splice(vertex.vertexPos, 1);
-                    shapeSelected.colors.splice(vertex.vertexPos, 1);
-
+                        shapeSelected.vertices.push(positon)
+                        shapeSelected.colors.push(color)                    
+                    } else {
+                        var vertex      = getNearestVertice(positon);
+    
+                        if (!vertex) return;
+        
+                        shapeSelected.vertices.splice(vertex.vertexPos, 1);
+                        shapeSelected.colors.splice(vertex.vertexPos, 1);
+    
+                    }
+                    var convexHull  = getConvexHull(shapeSelected);
+    
+                    shapeSelected.vertices = convexHull.vertices;
+                    shapeSelected.colors   = convexHull.colors;
+                    selected    = false;
+                    return;
                 }
-                selected    = false;
-                return;
             }
 
             if (!inside) return;
             
             shapeSelected   = shapeBuffer.findById(inside.shapePos);
 
+            selected        = true;
+
             if (shapeSelected.type == "polygon") {
-                selected        = true;
                 document.getElementById("width").style.height               = "43.4px";
                 document.getElementById("menuspecial-label").style.display  = "block";
                 document.getElementById("menuspecial").style.display        = "block";
@@ -303,6 +302,22 @@ function app() {
                 document.getElementById("width").style.height               = "98px";
                 document.getElementById("menuspecial-label").style.display  = "none";
                 document.getElementById("menuspecial").style.display        = "none";
+
+                var interval        = 0;
+                const animation     = setInterval(function() {
+                    interval++;
+
+                    var center     = getCenter(shapeSelected);
+                    if (interval <= 5)
+                        shapeSelected.resize(center, (11/10))
+                    else
+                        shapeSelected.resize(center, (10/11))
+                    render();
+                    if (interval == 10) {
+                        clearInterval(animation);
+                        selected    = false;
+                    }
+                }, 100)
             }
         })
 
@@ -349,55 +364,45 @@ function app() {
             resizing        = false;
         })
     }
-    // bug
-    // function rotateMode() {
-    //     var rotating        = false;
-    //     var shape;
 
-    //     canvas.addEventListener("mousedown", (e) => {
-    //         if (mode != "rotate") return;
+    function rotateMode() {
+        var rotating        = false;
+        var vertex, shape;
 
-    //         var positon     = getPosition(canvas, e);
-    //         var inside      = getNearestInsideShape(positon);
+        canvas.addEventListener("mousedown", (e) => {
+            if (mode != "rotate") return;
 
-    //         if (!inside) return;
+            var positon     = getPosition(canvas, e);
+            vertex      = getNearestVertice(positon);
 
-    //         shape           = shapeBuffer.findById(inside.shapePos);
+            if (!vertex) return;
 
-    //         rotating        = true;
-    //     })
+            shape           = shapeBuffer.findById(vertex.shapePos);
 
-    //     canvas.addEventListener("mousemove", (e) => {
-    //         if (mode != "rotate") return;
+            rotating        = true;
+        })
 
-    //         if (rotating) {
-    //             var positon     = getPosition(canvas, e);
-    //             var center      = getCenter(shape)
+        canvas.addEventListener("mousemove", (e) => {
+            if (mode != "rotate") return;
 
-    //             console.log(center)
+            if (rotating) {
+                var positon     = getPosition(canvas, e);
+                var center      = getCenter(shape)
+                var vertexPos   = vertex.vertexPos;
 
-    //             var dx          = positon.x - center.x;
-    //             var dy          = positon.y - center.y;
+                var angle       = ( 
+                    Math.atan2(shape.vertices[vertexPos].y - center.y, shape.vertices[vertexPos].x - center.x) -
+                    Math.atan2(positon.y - center.y, positon.x - center.x)
+                ) * 180 / Math.PI;
 
-    //             var angleRad    = Math.atan2(dy, dx);
-    //             angleRad        = (((angleRad + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI)) - Math.PI;
+                shape.rotate(center, angle)
+            }
+        })
 
-    //             shape.vertices.forEach(vertice => {
-    //                 var distance   = euclideanDistance(vertice, center);
-    //                 angleRad       = Math.atan2(vertice.y - center.y, vertice.x - center.x) + angleRad;
-    //                 var angleDeg   = (((angleRad + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI)) - Math.PI;
-                    
-    //                 vertice.x      = center.x + distance * Math.cos(angleDeg);
-    //                 vertice.y      = center.y + distance * Math.sin(angleDeg);
-    //             })
+        canvas.addEventListener("mouseup", (e) => {
+            if (mode != "rotate") return;
 
-    //         }
-    //     })
-
-    //     canvas.addEventListener("mouseup", (e) => {
-    //         if (mode != "rotate") return;
-
-    //         rotating        = false;
-    //     })
-    // }
+            rotating        = false;
+        })
+    }
 }

@@ -38,23 +38,86 @@
                 ></button>
               </div>
               <div class="modal-body" style="text-align: left">
-                <h5>Membuat Line, Square, Polygon </h5>
+                <h5>Membuat Line, Square, Rectangel, Polygon </h5>
                 <p>
                   <ol> 
-                   <li><b>Line </b></li>
-                   <li><b>Square </b></li>
-                   <li><b>Rectangle </b></li>
-                   <li><b>Polygon : </b> Pilih "Polygon" kemudian klik sebanyak masukan di "number of Node Polygon" (Akan terbentuk n vertex pembentuk polygon) di canvas</li>
-                    <li>Warna dapat diubah sesuai keinginan dengan klik "Choose color"</li>
+                   <li>Pilih mode "draw" yang tersedia pada pilihan menu "mode"</li>
+                   <li>Pada menu "shape", pilih gambar yang ingin dibuat. Misalnya jika ingin menggambar garis, pilihlah menu "garis"</li>
+                   <li>Atur warna yang dinginkan dengan cara klik pada masukan "Choose color"</li>
+                   <li><i>Drag</i> daerah canvas yang ingin digambar untuk menampilkan gambar yang dipilih</li>
+                   <li>Khusus untuk poligon, akan muncul masukan "Number of Node Polygon" dan proses menggambarnya dilakukan dengan cara klik canvas sebanyak masukan "Number of Node Polygon"-nya</li>
                  </ol>
                </p>
-                <h5>Menggeser titik kontrol/simpul dengan mouse</h5>
+                <h5>Menggeser Titik dengan Mouse</h5>
                  <p>
-                   <ol>
-                    <li>Klik "Move at X direction" dan "Move at Y direction"</li>
-                    <li>Tekan vertex ataupun simpul yang ada di canvas dan tarik/geser vertex dengan mouse untuk menggeser vertex </li>
+                  <ol>
+                    Cara Pertama
+                    <ol>
+                      <li>Pilih mode "move" yang tersedia pada pilihan menu "mode"</li>
+                      <li><i>Drag</i>Titik pada bangun yang ingin digerakan</li>
+                      <br>
+                      Pada mode ini terdapat checkbox "Lock Corner" yang berfungsi untuk mengunci sudut titik yang digerakan (hanya bekerja efektif pada bangun persergi dan persegi panjang).
+                      Selain itu, mode ini tidak menjamin kesebangunan bangun yang digerakan salah satu titiknya.
+                    </ol>
+                    <br>
+                    Cara Kedua
+                    <ol>
+                      <li>Pilih mode "Resize" yang tersedia pada pilihan menu "mode"</li>
+                      <li><i>Drag</i> titik pada bangun yang ingin digerakan</li>
+
+                      <br>
+                      Pada mode ini, kesebangunan bangun yang digerakan salah satu titiknya terjamin.
+                    </ol>
                   </ol>
                 </p>
+              <h5>Menggerak Keseluruhan Bangun dengan Mouse</h5>
+              <p>
+                <ol>
+                  <li>Pilih mode "Move" yang tersedia pada pilihan menu "mode"</li>
+                  <li><i>Drag</i> bagian dalam bangun yang ingin digerakan</li>
+                </ol>
+              </p>
+              <h5>Mengubah Panjang Sisi-Sisi pada bangun Persegi/ Persegi Panjang</h5>
+              <p>
+                <ol>
+                  <li>Pilih mode "Move" yang tersedia pada pilihan menu "mode"</li>
+                  <li><i>Drag</i> sisi pada bangun yang ingin ubah panjang</li>
+                </ol>
+              </p>
+              <h5>Mengubah Warna Bangun</h5>
+              <p>
+                <ol>
+                  <li>Pilih mode "Paint" yang tersedia pada pilihan menu "mode"</li>
+                  <li>Klik bagian dalam bangun yang ingin diwarnai untuk mewarnai keseluruhan bangun dengan warna yang sama</li>
+                  Atau
+                  <li>Klik pada salah satu titik pada bangun untuk mewarnai titik tersebut</li>
+                </ol>
+              </p>
+              <h5>Memutar Bangun</h5>
+              <p>
+                <ol>
+                  <li>Pilih mode "Rotate" yang tersedia pada pilihan menu "mode"</li>
+                  <li><i>Drag</i> salah satu titik bangun yang ingin diputar</li>
+                </ol>
+              </p>
+              <h5>Menambahkan atau Mengapus Satu Titik pada Poligon</h5>
+              <p>
+                <ol>
+                  <li>Pilih mode "select" yang tersedia pada pilihan menu "mode"</li>
+                  <li>Klik bagian dalam bangun yang ingin ditambah atau dihapus titiknya</li>
+                  <li>Setelah muncul menu "Special Menu Polygon",  pilih pilihan "Insert Point" untuk menambahkan satu titik atau "Remove Point" untuk menghapus satu titik</li>
+                  <li>Untuk "Insert Point", klik titik sembarangan pada canvas dan diluar bangun, maka titik tersebut automatis ditambahkan pada bangun yang dipilih</li>
+                  <li>Untuk "Remove Point", klik titik pada bangun yang ingin dihapus</li>
+                  <li>Setelah titik berhasil menambahkan atau menghapus sebuah titik, ulangi langkah kedua untuk bisa menghapus atau menambahkan titik yang lain</li>
+                </ol>
+              </p>
+              <h5>Menjalankan Animasi pada Bangun Selain Poligon</h5>
+              <p>
+                <ol>
+                  <li>Pilih mode "select" yang tersedia pada pilihan menu "mode"</li>
+                  <li>Klik bagian dalam bangun dijalankan animasinya (pertama-tama bangun akan membesar, lalu mengecil)</li>
+                </ol>
+              </p>
              <h5>Save, load, clear</h5>
              <p>
                <ol>
@@ -129,10 +192,10 @@
               <input 
                 class="form-check-input" 
                 type="checkbox" 
-                id="similarity" 
+                id="corner" 
                 checked="true"
                 style="display: none;"/>
-              <label class="form-check-label" id="similarity-label" style="display: none;">Lock Similarity</label>
+              <label class="form-check-label" id="corner-label" style="display: none;">Lock Corner</label>
               <label class="form-check-label" id="menuspecial-label" style="display: none;">Special Menu Polygon</label>
               <select
                 id="menuspecial"
@@ -144,7 +207,7 @@
                 <option value="remove">Remove Point</option>
               </select>
             </div>
-            <div id="width"> 
+            <div id="width" style="height: 98px;"> 
             </div>
             <hr>
             <div class="d-grid gap-1 col-6 mx-auto">

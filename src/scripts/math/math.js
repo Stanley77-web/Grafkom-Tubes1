@@ -57,9 +57,18 @@ function getNearestShapeLine(pos) {
 
             var y   = m * pos.x + b;
 
-            console.log(y, pos.y, Math.abs(y - pos.y))
-
-            if ((Math.abs(y - pos.y) < eplison) || (x2 == x1 && Math.abs(x1 - pos.x) < eplison)) {
+            if ((Math.abs(y - pos.y) < eplison)              &&
+                    (
+                        (x1 < pos.x && pos.x < x2) ||
+                        (x2 < pos.x && pos.x < x1)
+                    ) 
+                || 
+                (x2 == x1 && Math.abs(x1 - pos.x) < eplison) && 
+                    (
+                        (y1 < pos.y && pos.y < y2) || 
+                        (y2 < pos.y && pos.y < y1)
+                    ) 
+               ) {
                 return {
                     shapePos    : i,
                     linePos     : [j%length, (j+1)%length]
@@ -101,13 +110,11 @@ function isInside(pos, shape) {
             y < Ymax     // max y
         ); 
     } else if (shape.type == "polygon") {
-        console.log("polygon")
         for (var i = 0; i < shape.vertices.length - 2; i++) {
             var A = area(shape.vertices[0], shape.vertices[i + 1], shape.vertices[i + 2]);
             var A1 = area(pos, shape.vertices[i + 1], shape.vertices[i + 2]);
             var A2 = area(shape.vertices[0], pos, shape.vertices[i + 2]);
             var A3 = area(shape.vertices[0], shape.vertices[i + 1], pos);
-            console.log((A - (A1 + A2 + A3)) )
             if (Math.abs(A - (A1 + A2 + A3)) < eplison) {
                 return true;
             }
@@ -141,8 +148,12 @@ function getCenter(shape) {
     }
 }
 
-function getConvexHull(points) {
-    var hull = [];
+function getConvexHull(shape) {
+    var points = shape.vertices;
+    var colors = shape.colors;
+
+    var hullVertices    = [];
+    var hullColors      = [];
 
     // Find the leftmost point
     var leftmost   = 0;
@@ -155,7 +166,8 @@ function getConvexHull(points) {
     var p = leftmost;
     var q;
     do {
-        hull.push(p);
+        hullVertices.push(points[p]);
+        hullColors.push(colors[p]);
 
         q = (p + 1) % points.length;
         for (var i = 0; i < points.length; i++) {
@@ -169,7 +181,10 @@ function getConvexHull(points) {
         p = q;
     } while (p != leftmost);
 
-    return hull;
+    return {
+        vertices    : hullVertices,
+        colors      : hullColors,
+    }
 }
 
 function orientation(p, q, r) {
